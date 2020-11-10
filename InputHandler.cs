@@ -9,18 +9,19 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Simulation;
+using Simulation.CommandSystem;
 
 namespace Engine
 {
     internal class InputHandler
     {
-        private readonly World _world;
+        private readonly CommandHandler _handler;
         private readonly CancellationTokenSource _tokenSource;
         private readonly StreamReader stream;
 
-        public InputHandler(World world, CancellationTokenSource tokenSource, Stream stream)
+        public InputHandler(CommandHandler handler, CancellationTokenSource tokenSource, Stream stream)
         {
-            _world = world;
+            _handler = handler;
             _tokenSource = tokenSource;
             this.stream = new StreamReader(stream);
         }
@@ -30,7 +31,7 @@ namespace Engine
             var line = await stream.ReadLineAsync();
             if (String.IsNullOrEmpty(line)) return;
             if (line.Equals("q")) _tokenSource.Cancel();
-            else await Task.Run(() => _world.SendCommand(line));
+            else await Task.Run(() => _handler.HandleCommand(line));
         }
 
         //public async void ReadInput()

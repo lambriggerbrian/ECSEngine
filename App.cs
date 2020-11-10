@@ -27,7 +27,6 @@ namespace Engine
         {
             UInt64 loopsFromStart = 0;
             _logger.LogInformation("Engine starting up...");
-            _world.StartManagers();
             bool shutdownRequested = false;
             while (!_token.IsCancellationRequested && !shutdownRequested)
             {

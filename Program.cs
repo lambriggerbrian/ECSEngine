@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using Simulation;
+using Simulation.CommandSystem;
 
 namespace Engine
 {
@@ -35,9 +36,20 @@ namespace Engine
                     {
                         return Console.OpenStandardInput();
                     });
-                    services.AddSingleton<World, World>();
-                    services.AddSingleton<InputHandler, InputHandler>();
                     services.AddSingleton<IEntityManager, EntityManager>();
+                    services.AddSingleton(provider =>
+                    {
+                        var factory = provider.GetRequiredService<ILoggerFactory>();
+                        var entityManager = provider.GetRequiredService<IEntityManager>();
+                        var collection = new ComponentManagerCollection(factory);
+                        collection.AddComponentManager(new TransformComponentManager(factory, entityManager));
+                        return collection;
+                    });
+                    services.AddSingleton<World, World>();
+                    services.AddSingleton<ICommandDefinitions, BasicCommandDefinitions>();
+                    services.AddScoped<ICommandTranslator, BasicStringTranslator>();
+                    services.AddScoped<CommandHandler, CommandHandler>();
+                    services.AddSingleton<InputHandler, InputHandler>();
                     services.AddSingleton<App>();
                 });
     }
